@@ -13,15 +13,12 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', default='key_from_env')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,9 +31,6 @@ ALLOWED_HOSTS = [
     'www.foodgram-serpan.mooo.com'
 ]
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework.authtoken',
     'rest_framework',
+    'rest_framework.authtoken',
     'djoser',
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
@@ -133,6 +127,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -143,7 +139,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -156,13 +152,17 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
-    'SEND_ACTIVATION_EMAIL': False,
-    'ACTIVATION_URL': False,
-    'HIDE_USERS': False,
+    # 'SEND_ACTIVATION_EMAIL': False,
+    # 'ACTIVATION_URL': False,
+    # 'HIDE_USERS': False,
     # 'PERMISSIONS': {
-    #     'user': ('api.permissions.AuthorOrReadOnly',),
+    #     'user': ['api.permissions.AuthorOrReadOnly'],
+    #     'user_list': ['rest_framework.permissions.AllowAny'],
     # },
     # 'SERIALIZERS': {
-    #     'user': 'users.serializers.UserSerializer',
+    #     'user': 'users.serializers.CustomUserSerializer',
+    #     # 'user_list': 'rest_framework.permissions.AllowAny',
+    #     'current_user': 'users.serializers.CustomUserSerializer',
+    #     'user_create': 'users.serializers.CustomUserSerializer',
     # },
 }

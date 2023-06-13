@@ -36,14 +36,14 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
-        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('username', )
         constraints = [
             models.UniqueConstraint(
                 fields=['username', 'email'],
                 name='unique_user'
-            )
+            ),
         ]
 
 
@@ -51,19 +51,19 @@ class CustomUser(AbstractUser):
         return self.email
 
 
-class Follow(models.Model):
+class Subscription(models.Model):
     """Модель подписки пользователя(user) на автора(author)."""
     author = models.ForeignKey(
-        to=CustomUser,
         verbose_name='Автор рецепта',
-        on_delete=models.CASCADE,
         related_name = 'following',
+        to=CustomUser,
+        on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
-        to=CustomUser,
         verbose_name='Подписчик',
-        on_delete=models.CASCADE,
         related_name = 'follower',
+        to=CustomUser,
+        on_delete=models.CASCADE,
     )
 
     class Meta:
