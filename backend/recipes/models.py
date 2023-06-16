@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 
 from users.models import CustomUser
+from users.validators import color_validator
 
 # User = get_user_model()
 
@@ -14,7 +15,7 @@ class Ingredient(models.Model):
         verbose_name="Ингредиент",
         max_length=200
     )
-    measure_unit = models.CharField(
+    measurement_unit = models.CharField(
         verbose_name='Ед.изм.',
         max_length=50,
     )
@@ -22,7 +23,7 @@ class Ingredient(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=('name', 'measure_unit', ),
+                fields=('name', 'measurement_unit', ),
                 name='unique_ingredient'
             )
         ]
@@ -31,7 +32,7 @@ class Ingredient(models.Model):
         ordering = ('name', )
 
     def __str__(self):
-        return f'{self.name}, {self.measure_unit}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Tag(models.Model):
@@ -47,6 +48,7 @@ class Tag(models.Model):
         verbose_name='Цвет',
         max_length=7,
         unique=True,
+        validators=[color_validator],
         )
     slug = models.SlugField(
         verbose_name='Tag Slug',
@@ -130,13 +132,13 @@ class IngredientQuantity(models.Model):
         to=Recipe,
         on_delete=models.CASCADE,
     )
-    ingredients = models.ForeignKey(
+    ingredient = models.ForeignKey(
         verbose_name='Ингредиент в блюде',
         related_name='recipe',
         to=Ingredient,
         on_delete=models.CASCADE,
     )
-    quantity = models.PositiveSmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name="Кол-во",
         default=0,
         validators=(
@@ -151,13 +153,13 @@ class IngredientQuantity(models.Model):
         ordering = ('recipe', )
         constraints = [
             UniqueConstraint(
-                fields=('recipe', 'ingredients', ),
+                fields=('recipe', 'ingredient', ),
                 name='\n%(app_label)s_%(class)s ингридиент уже добавлен\n',
             ),
         ]
 
     def __str__(self):
-        return f'{self.quantity} {self.ingredients}'
+        return f'{self.amount} {self.ingredient}'
 
 
 class Favorite(models.Model):

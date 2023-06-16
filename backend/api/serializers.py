@@ -23,11 +23,9 @@ class Base64ImageField(serializers.ImageField):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
-
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
         return super().to_internal_value(data)
-
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -35,7 +33,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__', )
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -43,7 +41,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
-        read_only_fields = '__all__',
+        read_only_fields = ('__all__', )
 
 
 class IngredientQuantitySerializer(serializers.ModelSerializer):
@@ -62,11 +60,11 @@ class IngredientQuantitySerializer(serializers.ModelSerializer):
 class ShortRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для моделт Recipe.
     Укороченный набор полей"""
-    image = Base64ImageField()
+    image = Base64ImageField(required=False, allow_null=True)
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time'),
-        read_only_fields = '__all__',
+        read_only_fields = ('__all__', )
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -79,7 +77,7 @@ class SubscribeSerializer(CustomUserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
             'is_subscribed', 'recipes', 'recipes_count',
         )
-        read_only_fields = '__all__',
+        read_only_fields = ('__all__', )
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -91,7 +89,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer()
     is_favorite = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField()
+    image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Recipe

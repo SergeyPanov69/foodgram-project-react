@@ -37,6 +37,14 @@ def validate_tags(data):
             raise ValidationError({'tags': ['Тэг отсутствует в БД.']})
     return data
 
+
+def color_validator(color):
+    regex_color = re.compile(r'^#([a-fA-F0-9]{6})')
+    if not regex_color.fullmatch(color):
+        raise ValidationError(
+            'Допустим только цветовой HEX-код (например, #49B64E).'
+        )
+
 # def validate_ingredients(data):
 #     """Валидация ингредиентов и количества."""
 #     if not data:

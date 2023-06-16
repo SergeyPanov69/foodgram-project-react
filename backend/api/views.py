@@ -2,12 +2,13 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 # from fpdf import FPDF
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework import response
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly, SAFE_METHODS)
 from rest_framework.decorators import action
 
+from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeSerializer,
                              ShortRecipeSerializer, SubscribeSerializer,
@@ -27,12 +28,17 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    pagination_class = None,
+    # filter_backends = (filters.SearchFilter,) # Надо проверять
+    filterset_class = IngredientFilter
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly, AuthorOrReadOnly)
     serializer_class = RecipeSerializer
+    filter_class = RecipeFilter
+
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -100,31 +106,22 @@ class RecipesViewSet(viewsets.ModelViewSet):
             url_path='download_shopping_cart',
             url_name='download_shopping_cart'
     )
-    def download_cart(self, request):
+    def download_shopping_cart(self, request):
         """Формирование и скачивание списка покупок."""
         user = request.user
-        ingredients = IngredientQuantity.objects.filter(
-            recipe__sh_cart__user=user).values(
-                'ingredient__name', 'ingredient__measurement_unit').annotate(
-                    Sum('amount', distinct=True))
+        ingredients = (
+            IngredientQuantity.objects
+            .filter(recipe__purchase_recipe__user=user)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(Sum('amount', distinct=True))
+        )
 
-
-        # pdf = FPDF()
-        # pdf.add_page()
-        # pdf.add_font(
-        #     'DejaVu', '', './recipes/fonts/DejaVuSansCondensed.ttf', uni=True)
-        # pdf.set_font('DejaVu', size=14)
-        # pdf.cell(txt='Список покупок', center=True)
-        # pdf.ln(8)
-
-
-        for i, ingredient in enumerate(ingredients):
-            name = ingredient['ingredient__name']
-            unit = ingredient['ingredient__measurement_unit']
-            amount = ingredient['amount__sum']
-            shopping_cart = '\n'.join([
-                f'{i + 1}) {name} - {amount} {unit}'
-            ])
+        shopping_cart = '\n'.join([
+            f'{i["ingredients__name"]} '
+            f'({i["ingredients__measurement_unit"]}) – '
+            f'{i["amount"]}'
+            for i in ingredients
+        ])
 
 
 
