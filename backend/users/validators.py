@@ -23,8 +23,8 @@ def validate_username(name):
         )
     if not regex_username.fullmatch(name):
         raise ValidationError(
-             f'В поле {name} допустимы только буквы, цифры, '
-             f'пробел и знаки @/./+/-/_'
+            f'В поле {name} допустимы только буквы, цифры, '
+            f'пробел и знаки @/./+/-/_'
         )
 
 
