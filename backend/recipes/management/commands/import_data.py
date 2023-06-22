@@ -2,9 +2,10 @@ import csv
 import os
 import sys
 
-from django.conf import settings
 from django.core.management import BaseCommand
 from recipes.models import Ingredient, Tag
+
+from foodgram import settings
 
 
 class Command(BaseCommand):
@@ -18,14 +19,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print('--Начинаем импорт данных--')
-        # path = os.path.join(settings.BASE_DIR, 'ingredients.csv')
-        # при таком путь получается ./backend/ingredients.csv
-        # а файлы по ТЗ в ./data/
+        # path = os.path.join(settings.BASE_DIR, 'data', 'ingredients.csv')
+        # print(path)
 
         for csv_name, model, fields in self.TABLES:
             try:
                 csv_file = open(
-                    os.path.join('data', csv_name),
+                    os.path.join(settings.BASE_DIR, 'data', csv_name),
                     'r',
                     encoding='utf-8'
                 )
