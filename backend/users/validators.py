@@ -16,14 +16,15 @@ def validate_first_last_name(name):
 
 def validate_username(name):
     """Валидация username."""
-    regex_username = re.compile(r'^[\w.@+-]+')
+    regex_username = re.compile(r'^[\w.@ +-]+')
     if name.lower() == 'me':
         raise ValidationError(
             'Недопустимое имя "me". Придумайте другое имя.'
         )
     if not regex_username.fullmatch(name):
         raise ValidationError(
-            'В поле {name} допустимы только буквы, цифры и знаки @/./+/-/_'
+             f'В поле {name} допустимы только буквы, цифры, '
+             f'пробел и знаки @/./+/-/_'
         )
 
 
