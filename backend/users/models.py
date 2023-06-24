@@ -29,7 +29,6 @@ class User(AbstractUser):
         validators=[validate_first_last_name],
     )
 
-
     class Meta:
         ordering = ['username']
         verbose_name = 'Пользователь'
