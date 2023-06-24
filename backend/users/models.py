@@ -29,8 +29,6 @@ class User(AbstractUser):
         validators=[validate_first_last_name],
     )
 
-    def __str__(self):
-        return f'{self.username}'
 
     class Meta:
         ordering = ['username']
@@ -70,4 +68,4 @@ class Follow(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user} подписан на {self.author}"
+        return self.author

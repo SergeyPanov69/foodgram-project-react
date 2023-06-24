@@ -48,7 +48,7 @@ class IngredientAmountSerializer(serializers.Serializer):
     amount = serializers.IntegerField(required=True)
 
     def validate_amount(self, value):
-        if value <= 0 or value > 5000:
+        if not 0 < value < 5000:
             raise serializers.ValidationError(
                 'Количесто ингредиента должно быть больше нуля и меньше 5000.'
             )
@@ -80,17 +80,19 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        if request.user.is_anonymous:
-            return False
         favorite = request.user.favorites.filter(recipe=obj)
-        return favorite.exists()
+        return (
+            favorite.exists()
+            and request.user.is_authenticated
+        )
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        if request.user.is_anonymous:
-            return False
         shopping_cart = request.user.cart.filter(recipe=obj)
-        return shopping_cart.exists()
+        return (
+            shopping_cart.exists()
+            and request.user.is_authenticated
+        )
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
@@ -145,9 +147,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
+        print(instance.ingredients.all())
         instance.tags.clear()
         instance.tags.add(*tags)
-        Amount.objects.filter(recipe_id=instance.pk).delete()
+        instance.ingredients.all().delete()
         self.add_ingredients(ingredients, instance)
         super().update(instance, validated_data)
         return instance
@@ -185,26 +188,26 @@ class FollowListSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.query_params.get('recipes_limit')
-        if not recipes_limit:
-            return RecipeShortSerializer(
-                Recipe.objects.filter(author=obj),
-                many=True,
-                context={'request': request}
-            ).data
-        return RecipeShortSerializer(
-            Recipe.objects.filter(author=obj)[:int(recipes_limit)],
+        recipes_limit = request.query_params.get('recipes_limit', None)
+        serializer = RecipeShortSerializer(
+            Recipe.objects.filter(author=obj),
             many=True,
             context={'request': request}
-        ).data
+        )
+        data = serializer.data
+        if recipes_limit is not None:
+            if len(data) > int(recipes_limit):
+                data = data[:int(recipes_limit)]
+        return data
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         user = request.user
-        if not request or user.is_anonymous:
-            return False
         subcribe = user.follower.filter(author=obj)
-        return subcribe.exists()
+        return (
+            subcribe.exists()
+            and user.is_authenticated
+        )
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -223,7 +226,7 @@ class FollowSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         author = data.get('author')
-        if Follow.objects.filter(user=user, author=author):
+        if user.follower.filter(author=author):
             raise serializers.ValidationError('Вы уже подписаны')
         if user == author:
             raise serializers.ValidationError(
