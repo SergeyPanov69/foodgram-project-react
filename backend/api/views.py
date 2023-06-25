@@ -21,7 +21,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
     http_method_names = ('get',)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.AllowAny,)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
