@@ -21,7 +21,5 @@ class UsersSerializer(UserSerializer):
         request = self.context.get('request')
         if not request.user or request.user.is_anonymous:
             return False
-        subcribe = request.user.follower.filter(author=obj)
-        return (
-            subcribe.exists()
-        )
+        subscribe = request.user.follower.filter(author=obj)
+        return subscribe.exists()

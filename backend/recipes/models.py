@@ -74,7 +74,6 @@ class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название',
         max_length=255,
-        unique=True,
         validators=[validate_username]
     )
     author = models.ForeignKey(
@@ -119,12 +118,12 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ['-pub_date']
-        # constraints = [
-        #     UniqueConstraint(
-        #         fields=('name', 'author', ),
-        #         name='unique_recipe_author',
-        #     ),
-        # ]
+        constraints = [
+            UniqueConstraint(
+                fields=('name', 'author', ),
+                name='unique_recipe_author',
+            ),
+        ]
 
     def __str__(self):
         return self.name

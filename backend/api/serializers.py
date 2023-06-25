@@ -203,8 +203,8 @@ class FollowListSerializer(serializers.ModelSerializer):
         user = request.user
         if not request or user.is_anonymous:
             return False
-        subcribe = user.follower.filter(author=obj)
-        return subcribe.exists()
+        subscribe = user.follower.filter(author=obj)
+        return subscribe.exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):
