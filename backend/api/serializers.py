@@ -145,7 +145,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        print(instance.ingredients.all())
         instance.tags.clear()
         instance.tags.add(*tags)
         instance.ingredients.all().delete()
@@ -186,17 +185,14 @@ class FollowListSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.query_params.get('recipes_limit', None)
-        serializer = RecipeShortSerializer(
-            Recipe.objects.filter(author=obj),
-            many=True,
-            context={'request': request}
-        )
-        data = serializer.data
-        if recipes_limit is not None:
-            if len(data) > int(recipes_limit):
-                data = data[:int(recipes_limit)]
-        return data
+        recipes_limit = request.query_params.get('recipes_limit')
+        data = Recipe.objects.filter(author=obj)
+        if not recipes_limit:
+            return RecipeShortSerializer(
+                data, many=True, context={'request': request}).data
+        data = data[:int(recipes_limit)]
+        return RecipeShortSerializer(
+            data, many=True, context={'request': request}).data
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
