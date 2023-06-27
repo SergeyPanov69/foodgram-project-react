@@ -5,8 +5,8 @@
 - ip: 51.250.104.104
 
 ## Администратор (логин, пароль)
-- admin@pochta.ru
-- Etre123#
+- admin@<ваши данные>
+- <ваш пароль>
 
 
 ## О проекте
@@ -67,7 +67,7 @@ docker compose up --build
 ```
 docker exec foodgram_backend python manage.py migrate
 ```
-4. Заполнить базу началбными данными.
+4. Заполнить базу начальными данными.
 ```
 docker exec foodgram_backend python manage.py import_data
 ```

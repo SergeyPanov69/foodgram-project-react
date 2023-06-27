@@ -23,13 +23,6 @@ class UsersViewSet(UserViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def subscriptions(self, request):
-        # Не получается исправить именно этот queryset.
-        # По сути аналогично сделал в сериалайзере и там работает.
-        # Здесь возникает ошибка. Не смог найти причину.
-        # Если возможно, то прошу принять с filter.
-        # Сайт запущен, работает без сбоев с 21/06. В Ридми данные для админки.
-        # Сейчас сложились обстоятельства, что нет возможности уделить
-        # больше времени. Спасибо за понимание.
         user = request.user
         queryset = User.objects.filter(following__user=user)
         if queryset:
